@@ -5,6 +5,7 @@ var {BasicWidgetMixin, ValidationFailure} = require('./mixins');
 var utils = require('../utils');
 var userLabel = require('../userLabel');
 var i18n = require('../i18n');
+var SimpleMDE = require('simplemde');
 
 function isTrue(value) {
   return value == 'true' || value == 'yes' || value == '1';
@@ -219,15 +220,22 @@ var UrlInputWidget = React.createClass({
 var MultiLineTextInputWidget = React.createClass({
   mixins: [BasicWidgetMixin],
 
-  onChange: function(event) {
+  onChange: function() {
     this.recalculateSize();
+    var value = this.state["simplemde"].value();
     if (this.props.onChange) {
-      this.props.onChange(event.target.value);
+      this.props.onChange(value);
     }
+  },
+  
+  getInitialState: function(){
+    return { simplemde : null };
   },
 
   componentDidMount: function() {
     this.recalculateSize();
+    this.state["simplemde"] = new SimpleMDE({ autoDownloadFontAwesome: false, hideIcons: ["quote", "preview", "side-by-side"], showIcons: ["code"], insertTexts: { codeBlock: ["blocks", ""]} });
+    this.state["simplemde"].codemirror.on("change", this.onChange);
     window.addEventListener('resize', this.recalculateSize);
   },
 
